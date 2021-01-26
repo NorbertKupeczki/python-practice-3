@@ -25,16 +25,17 @@ class BinarySearchTree:
     def print(self):
         if self.left is not None:
             self.left.print()
-        print(self.value)
+        print(self.value, " ", end='')
         if self.right is not None:
             self.right.print()
 
 
 if __name__ == "__main__":
-    values = [random.randint(1, 100) for i in range(20)] #Initial random values
-    tree = BinarySearchTree(values[0]) # Create the root node of the binary search tree
-    for value in values[1:]: # Iterate over the other random values in the list
-        node = BinarySearchTree(value) # Create a node with the random value
-        tree.add(node) # Add to the correct position in the tree
+    values = [random.randint(1, 100) for i in range(20)]
+    tree = BinarySearchTree(values[0])
+    for value in values[1:]:
+        node = BinarySearchTree(value)
+        tree.add(node)
+    print("\nThe values stored in the Binary Search Tree in ascending order:")
     tree.print()
     sys.exit(0)
