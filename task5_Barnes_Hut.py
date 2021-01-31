@@ -12,10 +12,10 @@ yellow = (255, 255, 102)
 black = (0, 0, 0)
 red = (255, 0, 0)
 green = (0, 255, 0)
-blue = (0, 0, 255)
+blue = (0, 100, 255)
 
 clock = pygame.time.Clock()
-game_speed = 60
+game_speed = 30
 
 
 class Body:
@@ -54,11 +54,11 @@ class IntNode:
                 self.nw = Body(mass, pos, dir)
             elif str(self.nw) == "IntNode":
                 self.nw.add(mass, pos, dir)
-            elif math.sqrt(pow(self.nw.pos[0] - pos[0], 2) + pow(self.nw.pos[1] - pos[1], 2)) < 1.e-5:
+            elif math.sqrt(pow(self.nw.pos[0] - pos[0], 2) + pow(self.nw.pos[1] - pos[1], 2)) > 1.e-5:
                 t_mass = self.nw.mass
                 t_pos = self.nw.pos
                 t_dir = self.nw.dir
-                self.nw = IntNode(self.centre[0] * 0.5, self.centre[1] * 0.5, self.size / 2)
+                self.nw = IntNode(self.centre[0] - self.size * 0.25, self.centre[1] - self.size * 0.25, self.size / 2)
                 self.nw.add(t_mass, t_pos, t_dir)
                 self.nw.add(mass, pos, dir)
         elif pos[0] >= self.centre[0] and pos[1] < self.centre[1]:
@@ -66,11 +66,11 @@ class IntNode:
                 self.ne = Body(mass, pos, dir)
             elif str(self.ne) == "IntNode":
                 self.ne.add(mass, pos, dir)
-            elif math.sqrt(pow(self.ne.pos[0] - pos[0], 2) + pow(self.ne.pos[1] - pos[1], 2)) < 1.e-5:
+            elif math.sqrt(pow(self.ne.pos[0] - pos[0], 2) + pow(self.ne.pos[1] - pos[1], 2)) > 1.e-5:
                 t_mass = self.ne.mass
                 t_pos = self.ne.pos
                 t_dir = self.ne.dir
-                self.ne = IntNode(self.centre[0] * 1.5, self.centre[1] * 0.5, self.size / 2)
+                self.ne = IntNode(self.centre[0] + self.size * 0.25, self.centre[1] - self.size * 0.25, self.size / 2)
                 self.ne.add(t_mass, t_pos, t_dir)
                 self.ne.add(mass, pos, dir)
         elif pos[0] < self.centre[0] and pos[1] >= self.centre[1]:
@@ -78,11 +78,11 @@ class IntNode:
                 self.sw = Body(mass, pos, dir)
             elif str(self.sw) == "IntNode":
                 self.sw.add(mass, pos, dir)
-            elif math.sqrt(pow(self.sw.pos[0] - pos[0], 2) + pow(self.sw.pos[1] - pos[1], 2)) < 1.e-5:
+            elif math.sqrt(pow(self.sw.pos[0] - pos[0], 2) + pow(self.sw.pos[1] - pos[1], 2)) > 1.e-5:
                 t_mass = self.sw.mass
                 t_pos = self.sw.pos
                 t_dir = self.sw.dir
-                self.sw = IntNode(self.centre[0] * 0.5, self.centre[1] * 1.5, self.size / 2)
+                self.sw = IntNode(self.centre[0] - self.size * 0.25, self.centre[1] + self.size * 0.25, self.size / 2)
                 self.sw.add(t_mass, t_pos, t_dir)
                 self.sw.add(mass, pos, dir)
         else:
@@ -90,11 +90,11 @@ class IntNode:
                 self.se = Body(mass, pos, dir)
             elif str(self.se) == "IntNode":
                 self.se.add(mass, pos, dir)
-            elif math.sqrt(pow(self.se.pos[0] - pos[0], 2) + pow(self.se.pos[1] - pos[1], 2)) < 1.e-5:
+            elif math.sqrt(pow(self.se.pos[0] - pos[0], 2) + pow(self.se.pos[1] - pos[1], 2)) > 1.e-5:
                 t_mass = self.se.mass
                 t_pos = self.se.pos
                 t_dir = self.se.dir
-                self.se = IntNode(self.centre[0] * 1.5, self.centre[1] * 1.5, self.size / 2)
+                self.se = IntNode(self.centre[0] + self.size * 0.25, self.centre[1] + self.size * 0.25, self.size / 2)
                 self.se.add(t_mass, t_pos, t_dir)
                 self.se.add(mass, pos, dir)
 
@@ -109,34 +109,15 @@ class IntNode:
         cy = (b1_p[1] * b1_m + b2_p[1] * b2_m) / (b1_m + b2_m)
         return [cx, cy]
 
-    def print_quad_tree(self):
-        if self.nw is not None:
-            if str(self.nw) == "IntNode":
-                self.nw.print_quad_tree()
-            else:
-                print(self.nw.mass)
-        if self.ne is not None:
-            if str(self.ne) == "IntNode":
-                self.ne.print_quad_tree()
-            else:
-                print(self.ne.mass)
-        if self.sw is not None:
-            if str(self.sw) == "IntNode":
-                self.sw.print_quad_tree()
-            else:
-                print(self.sw.mass)
-        if self.se is not None:
-            if str(self.se) == "IntNode":
-                self.se.print_quad_tree()
-            else:
-                print(self.se.mass)
-
 
 class Simulation:
     def __init__(self):
         self.is_running = True
-        self.g = 0.01
-        self.theta = 0.3
+        self.G = 0.001
+        self.THETA = 0.5
+        self.MIN_WEIGHT = 100
+        self.MAX_WEIGHT = 1000
+        self.N_OF_BODIES = 200
 
     def run_simulation(self):
         while self.is_running:
@@ -153,21 +134,21 @@ class Simulation:
                 root.add(i.mass, i.pos, i.dir)
             pygame.display.update()
             for i in bodies:
-                self.check_distance(i, root, dt)
+                self.barnes_hut(i, root, dt)
             clock.tick(game_speed)
 
     def draw_body(self, m, pos):
         r = ((m/3.1415)**(1/3))/1.5
         if r < 1:
             r = 1
-        if m > 850:
+        if m > (simulation.MAX_WEIGHT - simulation.MIN_WEIGHT) * 0.85:
             body_colour = yellow
-        elif m > 600:
-            body_colour = green
-        elif m > 350:
+        elif m > (simulation.MAX_WEIGHT - simulation.MIN_WEIGHT) * 0.6:
             body_colour = blue
-        else:
+        elif m > (simulation.MAX_WEIGHT - simulation.MIN_WEIGHT) * 0.35:
             body_colour = red
+        else:
+            body_colour = green
         pygame.draw.circle(screen, body_colour, pos, r)
 
     def move_body(self, body):
@@ -184,7 +165,7 @@ class Simulation:
             else:
                 v_vec = [-1 * (body1.pos[0] - body2.pos[0]) / dist, -1 * (body1.pos[1] - body2.pos[1]) / dist]
                 # To apply the simulation to a 3D space, divide by distance on the power of 2 in the equation below
-                f = (self.g * body1.mass * body2.mass) / pow(dist, 1)
+                f = (self.G * body1.mass * body2.mass) / pow(dist, 1)
                 f_vec = [v_vec[0] * f, v_vec[1] * f]
                 a_vec = [f_vec[0] / body1.mass, f_vec[1] / body1.mass]
 
@@ -193,36 +174,26 @@ class Simulation:
     def get_dist(self, body1, body2):
         return math.sqrt(pow(body1.pos[0] - body2.pos[0], 2) + pow(body1.pos[1] - body2.pos[1], 2))
 
-    def check_distance(self, body, node, dt):
-
-        if node.nw is not None and body is not node.nw:
-            dist = self.get_dist(body, node.nw)
-            if str(node.nw) == "IntNode" and node.nw.size/dist > self.theta:
-                self.check_distance(body, node.nw, dt)
-            else:
-                self.change_v(body, node.nw, dt)
-        if node.ne is not None and body is not node.ne:
-            dist = self.get_dist(body, node.ne)
-            if str(node.ne) == "IntNode" and node.ne.size/dist > self.theta:
-                self.check_distance(body, node.ne, dt)
-            else:
-                self.change_v(body, node.ne, dt)
-        if node.sw is not None and body is not node.sw:
-            dist = self.get_dist(body, node.sw)
-            if str(node.sw) == "IntNode" and node.sw.size/dist > self.theta:
-                self.check_distance(body, node.sw, dt)
-            else:
-                self.change_v(body, node.sw, dt)
-        if node.se is not None and body is not node.se:
-            dist = self.get_dist(body, node.se)
-            if str(node.se) == "IntNode" and node.se.size/dist > self.theta:
-                self.check_distance(body, node.se, dt)
-            else:
-                self.change_v(body, node.se, dt)
+    def barnes_hut(self, body, node, dt):
+        if body.pos == node.pos:
+            return False
+        elif str(node) == 'Body':
+            self.change_v(body, node, dt)
+        elif (node.size / self.get_dist(body, node)) < self.THETA:
+            self.change_v(body, node, dt)
+        else:
+            if node.nw is not None:
+                self.barnes_hut(body, node.nw, dt)
+            if node.ne is not None:
+                self.barnes_hut(body, node.ne, dt)
+            if node.sw is not None:
+                self.barnes_hut(body, node.sw, dt)
+            if node.se is not None:
+                self.barnes_hut(body, node.se, dt)
 
 
 def rand_mass():
-    return random.randint(100, 1000)
+    return random.randint(simulation.MIN_WEIGHT, simulation.MAX_WEIGHT)
 
 
 def rand_coord():
@@ -238,9 +209,8 @@ def rand_dir():
 
 if __name__ == '__main__':
     simulation = Simulation()
-    N_OF_BODIES = 1000
 
-    bodies = [Body(rand_mass(), rand_coord(), rand_dir()) for i in range(N_OF_BODIES)]
+    bodies = [Body(rand_mass(), rand_coord(), rand_dir()) for i in range(simulation.N_OF_BODIES)]
 
     simulation.run_simulation()
 

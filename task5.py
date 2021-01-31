@@ -15,7 +15,7 @@ green = (0, 255, 0)
 blue = (0, 0, 255)
 
 clock = pygame.time.Clock()
-game_speed = 60
+game_speed = 30
 
 
 class Body:
@@ -103,7 +103,7 @@ class Simulation:
 
 if __name__ == '__main__':
     simulation = Simulation()
-    N_OF_BODIES = 100
+    N_OF_BODIES = 160
     bodies = [Body() for i in range(N_OF_BODIES)]
     for i in bodies:
         print(i.mass, " ", i.pos, " ", i.dir)
