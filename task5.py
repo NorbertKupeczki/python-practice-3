@@ -94,7 +94,8 @@ class Simulation:
                 a_vec = [0, 0]
             else:
                 v_vec = [-1 * (body1.pos[0] - body2.pos[0]) / dist, -1 * (body1.pos[1] - body2.pos[1]) / dist]
-                f = (self.g * body1.mass * body2.mass) / pow(dist, 1)  # To apply the simulation to a 3D space, divide by distance on the power of 2
+                # To apply the simulation to a 3D space, divide by distance on the power of 2 in the equation below
+                f = (self.g * body1.mass * body2.mass) / pow(dist, 1)
                 f_vec = [v_vec[0] * f, v_vec[1] * f]
                 a_vec = [f_vec[0] / body1.mass, f_vec[1] / body1.mass]
 

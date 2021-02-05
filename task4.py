@@ -47,12 +47,24 @@ class Data:
             print("")
 
 
+def type_finder(inpt):
+    if re.match(int_format, inpt):
+        return int(inpt)
+    elif re.match(float_format, inpt):
+        return float(inpt)
+    else:
+        return str(inpt)
+
+
 def hash_function(to_hash, table_size):
     if isinstance(to_hash, int):
         h = to_hash % table_size
         print("Key is integer, hash: ", h)
     elif isinstance(to_hash, float):
-        h = round(to_hash * table_size % table_size)
+        h = str(to_hash)
+        dot_pos = h.find('.')
+        newstr = h[0:dot_pos] + h[dot_pos + 1:]
+        h = int(newstr) % table_size
         print("Key is float, hash: ", h)
     elif isinstance(to_hash, str):
         h = 0
@@ -62,15 +74,6 @@ def hash_function(to_hash, table_size):
         print("Key is string, hash: ", h)
 
     return h
-
-
-def type_finder(inpt):
-    if re.match(int_format, inpt):
-        return int(inpt)
-    elif re.match(float_format, inpt):
-        return float(inpt)
-    else:
-        return str(inpt)
 
 
 def print_table(table):
@@ -108,7 +111,7 @@ if __name__ == '__main__':
                     hash_table[h] = hash_table[h].next
                 else:
                     hash_table[h].delete(key)
-            else:
+            elif choice.upper() == 'N':
                 print_table(hash_table)
                 continue
 

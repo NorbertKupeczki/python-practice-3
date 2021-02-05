@@ -113,11 +113,11 @@ class IntNode:
 class Simulation:
     def __init__(self):
         self.is_running = True
-        self.G = 0.001
+        self.G = 0.0002
         self.THETA = 0.5
         self.MIN_WEIGHT = 100
         self.MAX_WEIGHT = 1000
-        self.N_OF_BODIES = 200
+        self.N_OF_BODIES = 190
 
     def run_simulation(self):
         while self.is_running:

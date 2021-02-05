@@ -1,5 +1,6 @@
 # Printing factorials recursively by Norbert Kupeczki
 
+
 import sys
 
 

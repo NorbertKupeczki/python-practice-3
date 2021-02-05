@@ -25,50 +25,63 @@ class BinarySearchTree:
     def print(self):
         if self.left is not None:
             self.left.print()
-        print(self.value)
+        print(self.value, " ", end='')
         if self.right is not None:
             self.right.print()
+
+    def search_smallest(self):
+        if self.left is not None:
+            return self.left.search_smallest()
+        else:
+            print("Smallest value in the range: ", + self.value)
+            return self.value
+
+    def search_highest(self):
+        if self.right is not None:
+            return self.right.search_highest()
+        else:
+            print("Highest value in the range: ", + self.value)
+            return self.value
 
     def search(self, number):
         if self.value == int(number):
             print("Value found: ", + self.value)
-            game.guess = True
             return True
         elif self.value > int(number) and self.left is not None:
-            self.left.search(number)
+            return self.left.search(number)
         elif self.value < int(number) and self.right is not None:
-            self.right.search(number)
+            return self.right.search(number)
         else:
             print(f"Value is not in the tree.")
             tree.closest_number(number)
             return False
 
-    def search_smallest(self):
-        if self.left is not None:
-            self.left.search_smallest()
-        else:
-            print("Smallest value in the range: ", + self.value)
-
-    def search_highest(self):
-        if self.right is not None:
-            self.right.search_highest()
-        else:
-            print("Highest value in the range: ", + self.value)
-
     def closest_number(self, number, distance=100):
         if distance > abs(self.value - int(number)):
             distance = abs(self.value - int(number))
         if self.value > int(number) and self.left is not None:
-            self.left.closest_number(number, distance)
+            return self.left.closest_number(number, distance)
         elif self.value < int(number) and self.right is not None:
-            self.right.closest_number(number, distance)
+            return self.right.closest_number(number, distance)
         else:
-            print(f"The closest number is {distance} away")
+            print(f"The closest number is {distance} away from your guess")
+            return distance
 
 
 class Game:
     is_running = True
-    guess = False
+
+    def run_game(self):
+        self.game_instructions()
+        tree.search_smallest()
+        tree.search_highest()
+        while self.is_running:
+            to_search = input("Enter your guess: ")
+            if tree.search(to_search):
+                print("\nCongratulations, you guessed the number!")
+                self.is_running = False
+            else:
+                print("Try again!\n")
 
     @staticmethod
     def game_instructions():
@@ -79,22 +92,12 @@ within a certain range. If you fail to guess correctly, a hint will be given."""
 
 
 if __name__ == "__main__":
-    game = Game
+    game = Game()
     values = [random.randint(1, 100) for i in range(20)]
     tree = BinarySearchTree(values[0])
     for value in values[1:]:
         node = BinarySearchTree(value)
         tree.add(node)
-    # tree.print()
-    game.game_instructions()
-    tree.search_smallest()
-    tree.search_highest()
-    while game.is_running:
-        to_search = input("Enter your guess: ")
-        tree.search(to_search)
-        if game.guess:
-            print("\nCongratulations, you guessed the number!")
-            game.is_running = False
-        else:
-            print("Try again!\n")
+    game.run_game()
+
     sys.exit(0)

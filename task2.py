@@ -36,6 +36,6 @@ if __name__ == "__main__":
     for value in values[1:]:
         node = BinarySearchTree(value)
         tree.add(node)
-    print("\nThe values stored in the Binary Search Tree in ascending order:")
+    print("\nThe values stored in the Binary Search Tree in ascending order: ")
     tree.print()
     sys.exit(0)
